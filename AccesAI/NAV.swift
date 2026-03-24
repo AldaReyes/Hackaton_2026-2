@@ -9,6 +9,12 @@ import SwiftUI
 
 struct Nav: View {
     @StateObject var navModel = NavModel()
+    private let initialSelectedTab: Int?
+
+    init(index: Int? = nil) {
+        _navModel = StateObject(wrappedValue: NavModel())
+        self.initialSelectedTab = index
+    }
 
     var body: some View {
         TabView(selection: $navModel.selectedTab) {
