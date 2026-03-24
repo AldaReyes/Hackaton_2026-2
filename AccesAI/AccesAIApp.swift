@@ -14,4 +14,4 @@ struct AccesAIApp: App {
             Splash()
         }
     }
-}
+} 

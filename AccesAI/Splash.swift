@@ -13,12 +13,11 @@ struct Splash: View {
             VStack {
                 VStack {
                     Image("image1")
-                        .resizable() // Asegúrate de que la imagen sea redimensionable
-                        .aspectRatio(contentMode: .fill) // Rellena el espacio del círculo
-                        .frame(width: 300, height: 300) // Ajusta el tamaño del círculo
-                        .clipShape(Circle()) // Recorta la imagen como círculo
-                        //.overlay(Circle().stroke(Color(hex: 0xFFD700), lineWidth: 5)) // Añade un borde blanco opcional
-                        .background(Circle().fill(Color.white)) // Fondo blanco del círculo
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 300, height: 300)
+                        .clipShape(Circle())
+                        .background(Circle().fill(Color.white))
                     Text("Acces AI".uppercased())
                         .font(Font.custom("Baskerville-Bold", size: 30))
                         .foregroundColor(.black.opacity(0.80))
