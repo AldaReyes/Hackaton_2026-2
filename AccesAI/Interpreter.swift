@@ -30,6 +30,21 @@ struct Interpreter: View {
             descripcion: "Frase para pedir ir a la cafetería.",
             url: URL(string: "https://files.catbox.moe/r0ggy9.mp4")!
         ),
+        VideoItem(
+            titulo: "LLama a la policia",
+            descripcion: "Frase para pedir ayuda a otra persona",
+            url: URL(string: "https://files.catbox.moe/cobyel.mp4")!
+        ),
+        VideoItem(
+            titulo: "Muchas gracias por tu ayuda",
+            descripcion: "Frase para agradecer",
+            url: URL(string: "https://files.catbox.moe/5pspid.mp4")!
+        ),
+        VideoItem(
+            titulo: "¿Te puedo ayudar en algo?",
+            descripcion: "Frase para ofreser tu ayuda a alguien más",
+            url: URL(string: "https://files.catbox.moe/4t280x.mp4")!
+        ),
     ]
 
     // Filtra los videos según la barra de búsqueda
