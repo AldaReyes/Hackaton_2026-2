@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct Splash: View {
@@ -17,8 +16,8 @@ struct Splash: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 300, height: 300)
                         .clipShape(Circle())
-                        .background(Circle().fill(Color.white))
-                    Text("Acces AI".uppercased())
+                        .background(Circle().fill(Color.verdeFuerte))
+                    Text("Access AI".uppercased())
                         .font(Font.custom("Baskerville-Bold", size: 30))
                         .foregroundColor(.black.opacity(0.80))
                 }
@@ -31,8 +30,14 @@ struct Splash: View {
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // Ocupa toda la pantalla
-            .background(Color.white) // Fondo blanco de la pantalla
+            .frame(maxWidth: .infinity, maxHeight: .infinity) 
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.verdePastel, Color.azulPastel]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                     self.isActive = true

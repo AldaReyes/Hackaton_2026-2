@@ -9,11 +9,13 @@ import SwiftUI
 
 struct Nav: View {
     @StateObject var navModel = NavModel()
-    private let initialSelectedTab: Int?
 
     init(index: Int? = nil) {
-        _navModel = StateObject(wrappedValue: NavModel())
-        self.initialSelectedTab = index
+        let model = NavModel()
+        if let index {
+            model.selectedTab = index
+        }
+        _navModel = StateObject(wrappedValue: model)
     }
 
     var body: some View {
@@ -62,3 +64,4 @@ struct Nav_Previews: PreviewProvider {
         Nav()
     }
 }
+
