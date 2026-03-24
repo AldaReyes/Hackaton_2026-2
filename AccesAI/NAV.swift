@@ -5,45 +5,49 @@
 //  Created by DEVELOP02 on 23/03/26.
 //
 
-
 import SwiftUI
 
 struct Nav: View {
+    @StateObject var navModel = NavModel()
 
     var body: some View {
-
-        
-        TabView
-        {
+        TabView(selection: $navModel.selectedTab) {
             CDMXMap()
-                .tabItem{
+                .environmentObject(navModel)
+                .tabItem {
                     Image(systemName: "map")
-                    Text("Mapa CDMX")
+                    Text("CDMX")
                 }
                 .tag(0)
             UniversityMap()
-                .tabItem
-                {
+                .environmentObject(navModel)
+                .tabItem {
                     Image(systemName: "book")
-                    Text("Mapa Acatlan")
+                    Text("Acatlan")
                 }
                 .tag(1)
             UniversityMap()
-                .tabItem
-                {
+                .environmentObject(navModel)
+                .tabItem {
                     Image(systemName: "mic.fill")
                     Text("Asistencia Voz")
                 }
                 .tag(2)
             UniversityMap()
-                .tabItem
-                {
+                .environmentObject(navModel)
+                .tabItem {
                     Image(systemName: "text.page.badge.magnifyingglass")
                     Text("Interprete")
                 }
                 .tag(3)
+            Informacion()
+                .environmentObject(navModel)
+                .tabItem {
+                    Image(systemName: "info")
+                    Text("Informacion")
+                }
+                .tag(4)
         }
-        
     }
 }
 
