@@ -48,10 +48,6 @@ Se plantea el desarrollo de una aplicación inteligente que utilice IA para asis
 
   * La app aprende de los recorridos frecuentes del usuario
 
-* 📢 **Alertas en tiempo real**
-
-  * Notificación de zonas en construcción o bloqueadas
-
 ---
 
 ## 🛠️ Tecnologías Utilizadas
@@ -59,9 +55,6 @@ Se plantea el desarrollo de una aplicación inteligente que utilice IA para asis
 * **Frontend:** SwiftUI (iOS)
 * **Backend:** Swift
 * **IA y procesamiento:**
-
-  * Machine Learning
-  * Computer Vision
   * APIs de reconocimiento de voz
 
 ---
@@ -84,16 +77,6 @@ El sistema se divide en tres componentes principales:
 
    * Análisis de imágenes
    * Optimización de rutas
-
----
-
-## 🔄 Flujo de Funcionamiento
-
-1. El usuario abre la aplicación
-2. Selecciona su destino dentro del campus
-3. La IA calcula la mejor ruta accesible
-4. Se proporcionan indicaciones por voz o visuales
-5. La app detecta obstáculos en tiempo real y ajusta la ruta
 
 ---
 
@@ -132,6 +115,8 @@ Este proyecto busca aprovechar el potencial de la Inteligencia Artificial para c
 ## 📌 Autor
 
 Fernando Aguilar Martínez
+Arteaga Reyes Aldair 
+Herrera Ramos Daniela
 
 ---
 
