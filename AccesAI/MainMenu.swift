@@ -18,14 +18,14 @@ struct MainMenu: View {
                 } else
                 {
                     VStack(spacing: 24) {
-                        Text("AccesAI")
+                        Text("AccessAI")
                             .font(Font.custom("Helvetica Neue", size: 28).weight(.bold))
 
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                             menuButton(imageName: "image2", title: "Fes Acatlán Map", index: 0)
                             menuButton(imageName: "image3", title: "Mexico City Map", index: 1)
-                            menuButton(imageName: "image4", title: "Opción 3", index: 2)
-                            menuButton(imageName: "image5", title: "Opción 4", index: 3)
+                            menuButton(imageName: "image4", title: "Voice Commands", index: 2)
+                            menuButton(imageName: "image5", title: "Interprete", index: 3)
                             menuButton(imageName: "image6", title: "Information", index: 4)
                         }
                         .padding(.horizontal)

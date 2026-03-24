@@ -31,7 +31,7 @@ struct Interpreter: View {
             url: URL(string: "https://files.catbox.moe/r0ggy9.mp4")!
         ),
         VideoItem(
-            titulo: "LLama a la policia",
+            titulo: "Llama a la policia",
             descripcion: "Frase para pedir ayuda a otra persona",
             url: URL(string: "https://files.catbox.moe/cobyel.mp4")!
         ),
