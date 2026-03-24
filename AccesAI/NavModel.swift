@@ -6,5 +6,5 @@ import Combine
 class NavModel: ObservableObject {
     @Published var selectedTab: Int = 0
     @Published var marcadorIDParaCentrar: UUID?
-    @Published var campusParaCentrar: Informacion.Campus = .acatlan
+    @Published var campusParaCentrar: Campus = .acatlan
 }

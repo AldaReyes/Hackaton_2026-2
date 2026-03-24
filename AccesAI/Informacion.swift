@@ -20,64 +20,67 @@ protocol MarcadorComun: Identifiable where ID == UUID {
 extension MarcadorUniversidad: MarcadorComun {}
 extension MarcadorCDMX: MarcadorComun {}
 
-struct Informacion: View {
-    enum Campus: String, CaseIterable, Identifiable {
-        case acatlan = "Acatlán"
-        case cdmx = "CDMX"
-        var id: String { rawValue }
+enum Campus: String, CaseIterable, Identifiable {
+    case acatlan = "Acatlán"
+    case cdmx = "CDMX"
+    var id: String { rawValue }
+}
+
+struct AnyMarcador: Identifiable {
+    let id: UUID
+    let titulo: String
+    let descripcion: String?
+    let accesos: [Acceso]
+    let coordenada: CLLocationCoordinate2D
+    let campus: Campus
+    let original: any MarcadorComun
+
+    init(universidad: MarcadorUniversidad) {
+        self.id = universidad.id
+        self.titulo = universidad.titulo
+        self.descripcion = universidad.descripcion
+        self.accesos = universidad.accesos
+        self.coordenada = universidad.coordenada
+        self.campus = .acatlan
+        self.original = universidad
     }
 
-    @State private var campusSeleccionado: Campus = .acatlan
+    init(cdmx: MarcadorCDMX) {
+        self.id = cdmx.id
+        self.titulo = cdmx.titulo
+        self.descripcion = cdmx.descripcion
+        self.accesos = cdmx.accesos
+        self.coordenada = cdmx.coordenada
+        self.campus = .cdmx
+        self.original = cdmx
+    }
+}
+
+struct Informacion: View {
     @State private var textoBusqueda: String = ""
     @State private var estaEscuchando: Bool = false
 
-    // Reconocedor de voz
     @StateObject private var speechRecognizer = SpeechRecognizer()
 
-    // Navegación
-    @State private var marcadorSeleccionado: (any MarcadorComun)?
-
-    // Control de detalle
-    @State private var detalleMarcador: (campus: Campus, id: UUID)?
-
-    // Modelo de navegación/tab
     @EnvironmentObject var navModel: NavModel
 
-    // Filtra los marcadores según búsqueda
-    private var marcadoresAcatlan: [MarcadorUniversidad] {
-        let texto = textoBusqueda.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let todos: [MarcadorUniversidad] = MarcadoresUniversidad.todos
-        if texto.isEmpty { return todos }
-        return todos.filter { $0.titulo.lowercased().contains(texto) }
+    // Combina todos los marcadores en un solo arreglo
+    private var todosLosMarcadores: [AnyMarcador] {
+        let univ = MarcadoresUniversidad.todos.map { AnyMarcador(universidad: $0) }
+        let cdmx = MarcadoresCDMX.todos.map { AnyMarcador(cdmx: $0) }
+        return univ + cdmx
     }
 
-    private var marcadoresCDMX: [MarcadorCDMX] {
+    // Filtrado sencillo (opcional)
+    private var marcadoresFiltrados: [AnyMarcador] {
         let texto = textoBusqueda.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let todos: [MarcadorCDMX] = MarcadoresCDMX.todos
-        if texto.isEmpty { return todos }
-        return todos.filter { $0.titulo.lowercased().contains(texto) }
-    }
-
-    // Búsqueda cruzada
-    private var busquedaVaciaEnAcatlan: Bool {
-        textoBusqueda.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false && marcadoresAcatlan.isEmpty
-    }
-    private var busquedaVaciaEnCDMX: Bool {
-        textoBusqueda.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false && marcadoresCDMX.isEmpty
+        if texto.isEmpty { return todosLosMarcadores }
+        return todosLosMarcadores.filter { $0.titulo.lowercased().contains(texto) }
     }
 
     var body: some View {
         NavigationStack {
             VStack {
-                // Selector de campus
-                Picker("Campus", selection: $campusSeleccionado) {
-                    ForEach(Campus.allCases) { campus in
-                        Text(campus.rawValue).tag(campus)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
-
                 // Buscador con botón de micrófono
                 HStack {
                     TextField("Buscar marcador...", text: $textoBusqueda)
@@ -85,14 +88,6 @@ struct Informacion: View {
                         .disableAutocorrection(true)
                         .padding(10)
                         .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 10))
-                        .onChange(of: textoBusqueda) { _, nuevoValor in
-                            // Cambia de campus si la búsqueda está vacía aquí pero hay en el otro
-                            if campusSeleccionado == .acatlan && busquedaVaciaEnAcatlan && !marcadoresCDMX.isEmpty {
-                                campusSeleccionado = .cdmx
-                            } else if campusSeleccionado == .cdmx && busquedaVaciaEnCDMX && !marcadoresAcatlan.isEmpty {
-                                campusSeleccionado = .acatlan
-                            }
-                        }
                     Button {
                         if speechRecognizer.isAuthorized {
                             if estaEscuchando {
@@ -115,34 +110,26 @@ struct Informacion: View {
                 }
                 .padding([.horizontal, .bottom])
 
-                // Lista de marcadores como menú
                 List {
                     Section(header: Text("Lugares importantes")) {
-                        if campusSeleccionado == .acatlan {
-                            ForEach(marcadoresAcatlan) { marcador in
-                                NavigationLink(value: marcador.id) {
-                                    VStack(alignment: .leading) {
+                        ForEach(marcadoresFiltrados) { marcador in
+                            NavigationLink(value: marcador.id) {
+                                VStack(alignment: .leading) {
+                                    HStack {
                                         Text(marcador.titulo)
                                             .font(.headline)
-                                        if let descripcion = marcador.descripcion, !descripcion.isEmpty {
-                                            Text(descripcion)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
+                                        Spacer()
+                                        Text(marcador.campus.rawValue)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Capsule().fill(marcador.campus == .acatlan ? Color.blue.opacity(0.13) : Color.purple.opacity(0.13)))
                                     }
-                                }
-                            }
-                        } else {
-                            ForEach(marcadoresCDMX) { marcador in
-                                NavigationLink(value: marcador.id) {
-                                    VStack(alignment: .leading) {
-                                        Text(marcador.titulo)
-                                            .font(.headline)
-                                        if let descripcion = marcador.descripcion, !descripcion.isEmpty {
-                                            Text(descripcion)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
+                                    if let descripcion = marcador.descripcion, !descripcion.isEmpty {
+                                        Text(descripcion)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                             }
@@ -150,28 +137,15 @@ struct Informacion: View {
                     }
                 }
                 .listStyle(.insetGrouped)
-                .navigationDestination(for: MarcadorUniversidad.ID.self) { markerID in
-                    if let marcador = marcadoresAcatlan.first(where: { $0.id == markerID }) {
+                .navigationDestination(for: UUID.self) { markerID in
+                    if let marcador = marcadoresFiltrados.first(where: { $0.id == markerID }) {
                         DetalleMarcadorView(
                             titulo: marcador.titulo,
                             descripcion: marcador.descripcion,
                             accesos: marcador.accesos,
-                            campus: .acatlan,
+                            campus: marcador.campus,
                             onAbrirMapa: {
-                                abrirMapa(campus: .acatlan, marcador: marcador)
-                            }
-                        )
-                    }
-                }
-                .navigationDestination(for: MarcadorCDMX.ID.self) { markerID in
-                    if let marcador = marcadoresCDMX.first(where: { $0.id == markerID }) {
-                        DetalleMarcadorView(
-                            titulo: marcador.titulo,
-                            descripcion: marcador.descripcion,
-                            accesos: marcador.accesos,
-                            campus: .cdmx,
-                            onAbrirMapa: {
-                                abrirMapa(campus: .cdmx, marcador: marcador)
+                                abrirMapa(campus: marcador.campus, marcador: marcador.original)
                             }
                         )
                     }
@@ -190,7 +164,6 @@ struct Informacion: View {
         }
         navModel.marcadorIDParaCentrar = marcador.id
         navModel.campusParaCentrar = campus
-        // Ya no es necesario usar openURL.
     }
 }
 
@@ -198,7 +171,7 @@ struct DetalleMarcadorView: View {
     var titulo: String
     var descripcion: String?
     var accesos: [Acceso]
-    var campus: Informacion.Campus
+    var campus: Campus
     var onAbrirMapa: () -> Void
 
     var body: some View {
@@ -207,6 +180,13 @@ struct DetalleMarcadorView: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
+
+            Text(campus == .acatlan ? "Campus Acatlán" : "CDMX")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.vertical, 2)
+                .padding(.horizontal, 8)
+                .background(Capsule().fill(campus == .acatlan ? Color.blue.opacity(0.13) : Color.purple.opacity(0.13)))
 
             if let descripcion {
                 Text(descripcion)
@@ -217,9 +197,14 @@ struct DetalleMarcadorView: View {
 
             Divider().padding(.vertical)
 
-            // Accesos y ayudas
-            if !accesos.isEmpty {
-                VStack(spacing: 12) {
+            // Accesos y ayudas: SIEMPRE visible
+            VStack(spacing: 12) {
+                if accesos.isEmpty {
+                    Text("Sin ayudas de accesibilidad registradas.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                } else {
                     HStack(spacing: 18) {
                         ForEach(accesos.prefix(2), id: \.self) { acceso in
                             AccesoIcono(nombre: acceso.icono, texto: acceso.nombre)
@@ -233,8 +218,8 @@ struct DetalleMarcadorView: View {
                         }
                     }
                 }
-                .padding(.vertical, 10)
             }
+            .padding(.vertical, 10)
 
             // Botón para abrir en el mapa correspondiente
             Button {
