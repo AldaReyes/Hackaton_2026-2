@@ -79,79 +79,106 @@ struct Informacion: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                // Buscador con botón de micrófono
-                HStack {
-                    TextField("Buscar marcador...", text: $textoBusqueda)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .padding(10)
-                        .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 10))
-                    Button {
-                        if speechRecognizer.isAuthorized {
-                            if estaEscuchando {
-                                speechRecognizer.stopRecording()
-                            } else {
-                                speechRecognizer.startRecording { result in
-                                    self.textoBusqueda = result
-                                }
-                            }
-                            estaEscuchando.toggle()
-                        } else {
-                            speechRecognizer.requestAuthorization()
-                        }
-                    } label: {
-                        Image(systemName: estaEscuchando ? "mic.fill" : "mic")
-                            .foregroundColor(estaEscuchando ? .red : .blue)
-                            .font(.title2)
-                            .padding(.horizontal, 6)
-                    }
-                }
-                .padding([.horizontal, .bottom])
 
-                List {
-                    Section(header: Text("Lugares importantes")) {
-                        ForEach(marcadoresFiltrados) { marcador in
-                            NavigationLink(value: marcador.id) {
-                                VStack(alignment: .leading) {
-                                    HStack {
-                                        Text(marcador.titulo)
-                                            .font(.headline)
-                                        Spacer()
-                                        Text(marcador.campus.rawValue)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Capsule().fill(marcador.campus == .acatlan ? Color.blue.opacity(0.13) : Color.purple.opacity(0.13)))
-                                    }
-                                    if let descripcion = marcador.descripcion, !descripcion.isEmpty {
-                                        Text(descripcion)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+        ZStack {
+            NavigationStack {
+                VStack {
+                    // Buscador con botón de micrófono
+                    HStack {
+                        TextField("Buscar marcador...", text: $textoBusqueda)
+                            .textInputAutocapitalization(.never)
+                            .disableAutocorrection(true)
+                            .padding(10)
+                            .background(Color.white.opacity(0.2), in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(Color.white.opacity(0.25), lineWidth: 1)
+                            )
+                        Button {
+                            if speechRecognizer.isAuthorized {
+                                if estaEscuchando {
+                                    speechRecognizer.stopRecording()
+                                } else {
+                                    speechRecognizer.startRecording { result in
+                                        self.textoBusqueda = result
                                     }
                                 }
+                                estaEscuchando.toggle()
+                            } else {
+                                speechRecognizer.requestAuthorization()
+                            }
+                        } label: {
+                            Image(systemName: estaEscuchando ? "mic.fill" : "mic")
+                                .foregroundColor(estaEscuchando ? .red : .blue)
+                                .font(.title2)
+                                .padding(.horizontal, 6)
+                        }
+                    }
+                    .padding([.horizontal, .bottom])
+
+                    List {
+                        Section(header: Text("Lugares importantes")) {
+                            ForEach(marcadoresFiltrados) { marcador in
+                                NavigationLink(value: marcador.id) {
+                                    VStack(alignment: .leading) {
+                                        HStack {
+                                            Text(marcador.titulo)
+                                                .font(.headline)
+                                            Spacer()
+                                            Text(marcador.campus.rawValue)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Capsule().fill(marcador.campus == .acatlan ? Color.blue.opacity(0.13) : Color.purple.opacity(0.13)))
+                                        }
+                                        if let descripcion = marcador.descripcion, !descripcion.isEmpty {
+                                            Text(descripcion)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 8)
+                                    .background(Color.white.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .listRowBackground(Color.clear)
                             }
                         }
                     }
-                }
-                .listStyle(.insetGrouped)
-                .navigationDestination(for: UUID.self) { markerID in
-                    if let marcador = marcadoresFiltrados.first(where: { $0.id == markerID }) {
-                        DetalleMarcadorView(
-                            titulo: marcador.titulo,
-                            descripcion: marcador.descripcion,
-                            accesos: marcador.accesos,
-                            campus: marcador.campus,
-                            onAbrirMapa: {
-                                abrirMapa(campus: marcador.campus, marcador: marcador.original)
-                            }
-                        )
+                    .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    .navigationDestination(for: UUID.self) { markerID in
+                        if let marcador = marcadoresFiltrados.first(where: { $0.id == markerID }) {
+                            DetalleMarcadorView(
+                                titulo: marcador.titulo,
+                                descripcion: marcador.descripcion,
+                                accesos: marcador.accesos,
+                                campus: marcador.campus,
+                                onAbrirMapa: {
+                                    abrirMapa(campus: marcador.campus, marcador: marcador.original)
+                                }
+                            )
+                        }
                     }
                 }
+                .navigationTitle("Accesibilidad")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.azulPastel, Color.verdePastel]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ).ignoresSafeArea()
+                )
             }
-            .navigationTitle("Accesibilidad")
         }
     }
 

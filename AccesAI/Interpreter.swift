@@ -55,91 +55,119 @@ struct Interpreter: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                // Barra de búsqueda + micrófono
-                HStack {
-                    TextField("Buscar...", text: $textoBusqueda)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .padding(10)
-                        .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 10))
-                    Button {
-                        estaEscuchando.toggle()
-                    } label: {
-                        Image(systemName: estaEscuchando ? "mic.fill" : "mic")
-                            .foregroundColor(estaEscuchando ? .red : .blue)
-                            .font(.title2)
-                            .padding(.horizontal, 6)
-                    }
-                }
-                .padding([.horizontal, .bottom])
-
-                // Lista de videos con miniatura
-                List(resultados) { video in
-                    Button {
-                        mostrarVideoEnGrande = video
-                    } label: {
-                        HStack(spacing: 16) {
-                            ZStack {
-                                Rectangle()
-                                    .fill(Color.black.opacity(0.1))
-                                    .frame(width: 70, height: 70)
-                                    .cornerRadius(8)
-                                VideoPlayer(player: AVPlayer(url: video.url))
-                                    .frame(width: 70, height: 70)
-                                    .cornerRadius(8)
-                                    .shadow(radius: 2)
-                                    .disabled(true) // Para evitar que interactúen aquí
-                            }
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(video.titulo)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                Text(video.descripcion)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .padding(.vertical, 6)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .listStyle(.plain)
-
-                Spacer()
-            }
-            .navigationTitle("Intérprete")
-            .fullScreenCover(item: $mostrarVideoEnGrande) { video in
-                GeometryReader { geometry in
-                    ZStack(alignment: .topTrailing) {
-                        Color.black.opacity(0.85)
-                            .edgesIgnoringSafeArea(.all)
-                        VStack {
-                            Spacer()
-                            VideoPlayer(player: AVPlayer(url: video.url))
-                                .frame(maxHeight: geometry.size.height * 0.5)
-                                .cornerRadius(20)
-                                .shadow(radius: 16)
-                            Text(video.titulo)
-                                .font(.title2.bold())
-                                .foregroundStyle(.white)
-                                .padding(.top)
-                            Text(video.descripcion)
-                                .font(.body)
-                                .foregroundStyle(.white.opacity(0.8))
-                                .padding(.top, 4)
-                            Spacer()
-                        }
+        ZStack{
+            NavigationStack {
+                VStack {
+                    // Barra de búsqueda + micrófono
+                    HStack {
+                        TextField("Buscar...", text: $textoBusqueda)
+                            .textInputAutocapitalization(.never)
+                            .disableAutocorrection(true)
+                            .padding(10)
+                            .background(Color.white.opacity(0.2), in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(Color.white.opacity(0.25), lineWidth: 1)
+                            )
                         Button {
-                            mostrarVideoEnGrande = nil
+                            estaEscuchando.toggle()
                         } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundColor(.white)
-                                .shadow(radius: 10)
-                                .padding()
+                            Image(systemName: estaEscuchando ? "mic.fill" : "mic")
+                                .foregroundColor(estaEscuchando ? .red : .blue)
+                                .font(.title2)
+                                .padding(.horizontal, 6)
+                        }
+                    }
+                    .padding([.horizontal, .bottom])
+
+                    // Lista de videos con miniatura
+                    List(resultados) { video in
+                        Button {
+                            mostrarVideoEnGrande = video
+                        } label: {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    Rectangle()
+                                        .fill(Color.black.opacity(0.1))
+                                        .frame(width: 70, height: 70)
+                                        .cornerRadius(8)
+                                    VideoPlayer(player: AVPlayer(url: video.url))
+                                        .frame(width: 70, height: 70)
+                                        .cornerRadius(8)
+                                        .shadow(radius: 2)
+                                        .disabled(true) // Para evitar que interactúen aquí
+                                }
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(video.titulo)
+                                        .font(.headline)
+                                        .foregroundStyle(.primary)
+                                    Text(video.descripcion)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+                            }
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 8)
+                            .background(Color.white.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .frame(height: 90, alignment: .center)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+
+                    Spacer()
+                }
+                .background(Color.clear)
+                .navigationTitle("Intérprete")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.azulPastel, Color.verdePastel]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
+                )
+                .fullScreenCover(item: $mostrarVideoEnGrande) { video in
+                    GeometryReader { geometry in
+                        ZStack(alignment: .topTrailing) {
+                            Color.black.opacity(0.85)
+                                .edgesIgnoringSafeArea(.all)
+                            VStack {
+                                Spacer()
+                                VideoPlayer(player: AVPlayer(url: video.url))
+                                    .frame(maxHeight: geometry.size.height * 0.5)
+                                    .cornerRadius(20)
+                                    .shadow(radius: 16)
+                                Text(video.titulo)
+                                    .font(.title2.bold())
+                                    .foregroundStyle(.white)
+                                    .padding(.top)
+                                Text(video.descripcion)
+                                    .font(.body)
+                                    .foregroundStyle(.white.opacity(0.8))
+                                    .padding(.top, 4)
+                                Spacer()
+                            }
+                            Button {
+                                mostrarVideoEnGrande = nil
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(.white)
+                                    .shadow(radius: 10)
+                                    .padding()
+                            }
                         }
                     }
                 }

@@ -34,7 +34,7 @@ struct Nav: View {
                     Text("Acatlan")
                 }
                 .tag(1)
-            UniversityMap()
+            AsistenceVoice()
                 .environmentObject(navModel)
                 .tabItem {
                     Image(systemName: "mic.fill")
