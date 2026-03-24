@@ -41,7 +41,7 @@ struct Nav: View {
                     Text("Asistencia Voz")
                 }
                 .tag(2)
-            UniversityMap()
+            Interpreter()
                 .environmentObject(navModel)
                 .tabItem {
                     Image(systemName: "text.page.badge.magnifyingglass")
